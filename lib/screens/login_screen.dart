@@ -7,7 +7,7 @@ import '../services/firestore_service.dart';
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
-  Future<void> _signIn(BuildContext context, WidgetRef ref) async {
+  Future<void> _signInWithGoogle(BuildContext context, WidgetRef ref) async {
     final navigator = GoRouter.of(context);
     final authService = ref.read(authServiceProvider);
     final credential = await authService.signInWithGoogle();
@@ -16,6 +16,22 @@ class LoginScreen extends ConsumerWidget {
       await FirestoreService().saveUserProfile(
         user.uid,
         user.displayName ?? '',
+        user.email ?? '',
+        user.photoURL,
+      );
+      navigator.go('/home');
+    }
+  }
+
+  Future<void> _signInAnonymously(BuildContext context, WidgetRef ref) async {
+    final navigator = GoRouter.of(context);
+    final authService = ref.read(authServiceProvider);
+    final credential = await authService.signInAnonymously();
+    if (credential.user != null) {
+      final user = credential.user!;
+      await FirestoreService().saveUserProfile(
+        user.uid,
+        user.displayName ?? 'Guest',
         user.email ?? '',
         user.photoURL,
       );
@@ -51,9 +67,19 @@ class LoginScreen extends ConsumerWidget {
                 width: double.infinity,
                 height: 52,
                 child: FilledButton.icon(
-                  onPressed: () => _signIn(context, ref),
+                  onPressed: () => _signInWithGoogle(context, ref),
                   icon: const Icon(Icons.login),
                   label: const Text('Google로 시작하기'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: () => _signInAnonymously(context, ref),
+                  icon: const Icon(Icons.person_outline),
+                  label: const Text('게스트로 둘러보기'),
                 ),
               ),
             ],

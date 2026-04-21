@@ -20,6 +20,10 @@ class AuthService {
     return _auth.signInWithCredential(credential);
   }
 
+  Future<UserCredential> signInAnonymously() async {
+    return _auth.signInAnonymously();
+  }
+
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
