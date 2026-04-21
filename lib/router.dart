@@ -12,9 +12,20 @@ import 'screens/shop_screen.dart';
 import 'screens/friends_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/controller_settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+// No animation page for tab switching
+Page<void> _noAnimationPage(Widget child) {
+  return CustomTransitionPage(
+    child: child,
+    transitionDuration: Duration.zero,
+    reverseTransitionDuration: Duration.zero,
+    transitionsBuilder: (_, __, ___, child) => child,
+  );
+}
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -36,33 +47,22 @@ final router = GoRouter(
       builder: (context, state, child) => MainShell(child: child),
       routes: [
         GoRoute(
-            path: '/home', builder: (context, state) => const HomeScreen()),
+          path: '/home',
+          pageBuilder: (context, state) =>
+              _noAnimationPage(const HomeScreen()),
+        ),
         GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen()),
+          path: '/profile',
+          pageBuilder: (context, state) =>
+              _noAnimationPage(const ProfileScreen()),
+        ),
       ],
     ),
     GoRoute(
       path: '/game/:id',
       parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => CustomTransitionPage(
-        child: GameDetailScreen(id: state.pathParameters['id']!),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.05),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOut,
-              )),
-              child: child,
-            ),
-          );
-        },
-      ),
+      builder: (context, state) =>
+          GameDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/game/:id/play',
@@ -89,6 +89,11 @@ final router = GoRouter(
       path: '/notifications',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/controller-settings',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ControllerSettingsScreen(),
     ),
     GoRoute(
       path: '/chat/:friendUid',

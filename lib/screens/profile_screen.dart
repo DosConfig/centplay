@@ -218,7 +218,7 @@ class ProfileScreen extends ConsumerWidget {
                       iconColor: colorScheme.primary,
                       title: '컨트롤러 설정',
                       trailing: 'Bluetooth',
-                      onTap: () {},
+                      onTap: () => context.push('/controller-settings'),
                     ),
                   ],
                 ),
