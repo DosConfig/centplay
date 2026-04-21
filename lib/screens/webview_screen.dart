@@ -18,21 +18,33 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
   late WebViewController _controller;
   bool _isLoading = true;
   bool _urlLoaded = false;
+  bool _controllerConnected = false;
   final FocusNode _focusNode = FocusNode();
 
-  // Key mapping: physical keyboard/gamepad → JS keydown events
+  // Keyboard + Gamepad key → JS key mapping
   static final _keyMap = <LogicalKeyboardKey, String>{
+    // Arrow keys (keyboard & D-pad)
     LogicalKeyboardKey.arrowUp: 'ArrowUp',
     LogicalKeyboardKey.arrowDown: 'ArrowDown',
     LogicalKeyboardKey.arrowLeft: 'ArrowLeft',
     LogicalKeyboardKey.arrowRight: 'ArrowRight',
+    // Common game keys
     LogicalKeyboardKey.space: ' ',
     LogicalKeyboardKey.enter: 'Enter',
     LogicalKeyboardKey.escape: 'Escape',
-    LogicalKeyboardKey.keyW: 'w',
-    LogicalKeyboardKey.keyA: 'a',
-    LogicalKeyboardKey.keyS: 's',
-    LogicalKeyboardKey.keyD: 'd',
+    // WASD
+    LogicalKeyboardKey.keyW: 'ArrowUp',
+    LogicalKeyboardKey.keyA: 'ArrowLeft',
+    LogicalKeyboardKey.keyS: 'ArrowDown',
+    LogicalKeyboardKey.keyD: 'ArrowRight',
+    // Gamepad buttons (BT controller mapped by Flutter)
+    LogicalKeyboardKey.gameButtonA: ' ',        // A → Space (confirm/jump)
+    LogicalKeyboardKey.gameButtonB: 'Escape',   // B → Escape (back)
+    LogicalKeyboardKey.gameButtonStart: 'Enter', // Start → Enter
+    LogicalKeyboardKey.gameButtonSelect: 'Escape',
+    // Shoulder buttons
+    LogicalKeyboardKey.gameButtonLeft1: 'q',
+    LogicalKeyboardKey.gameButtonRight1: 'e',
   };
 
   @override
@@ -43,8 +55,10 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    // Hide system UI for immersive gaming
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    // Detect connected controllers
+    _checkController();
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -74,10 +88,17 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       ..addJavaScriptChannel(
         'GameBridge',
         onMessageReceived: (message) {
-          // Game → Flutter communication (e.g., score updates)
           debugPrint('GameBridge: ${message.message}');
         },
       );
+  }
+
+  void _checkController() {
+    // Flutter detects BT controllers as hardware keyboards
+    final hasHardwareKeyboard = HardwareKeyboard.instance.logicalKeysPressed.isNotEmpty;
+    if (hasHardwareKeyboard && !_controllerConnected) {
+      setState(() => _controllerConnected = true);
+    }
   }
 
   @override
@@ -89,6 +110,11 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
   }
 
   void _handleKeyEvent(KeyEvent event) {
+    // Detect controller connection
+    if (!_controllerConnected) {
+      setState(() => _controllerConnected = true);
+    }
+
     final jsKey = _keyMap[event.logicalKey];
     if (jsKey == null) return;
 
@@ -96,7 +122,9 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
     _controller.runJavaScript('''
       document.dispatchEvent(new KeyboardEvent('$eventType', {
         key: '$jsKey',
-        bubbles: true
+        code: '$jsKey',
+        bubbles: true,
+        cancelable: true
       }));
     ''');
   }
@@ -115,11 +143,24 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       appBar: AppBar(
         title: Text(title),
         actions: [
-          // Gamepad indicator
-          if (HardwareKeyboard.instance.logicalKeysPressed.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: Icon(Icons.gamepad, size: 20, color: Colors.green),
+          // Controller status indicator
+          if (_controllerConnected)
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.gamepad, size: 16, color: Colors.green),
+                  SizedBox(width: 4),
+                  Text('연결됨',
+                      style: TextStyle(fontSize: 11, color: Colors.green)),
+                ],
+              ),
             ),
           IconButton(
               icon: const Icon(Icons.close),

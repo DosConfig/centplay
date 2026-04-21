@@ -6,6 +6,7 @@ class Game {
   final String description;
   final String thumbnailUrl;
   final String webglUrl;
+  final String trailerUrl;
   final int rank;
   final double rating;
   final bool isRecommended;
@@ -17,6 +18,7 @@ class Game {
     required this.description,
     required this.thumbnailUrl,
     required this.webglUrl,
+    required this.trailerUrl,
     required this.rank,
     required this.rating,
     required this.isRecommended,
@@ -41,6 +43,7 @@ class Game {
       description: data['description'] ?? '',
       thumbnailUrl: data['thumbnailUrl'] ?? '',
       webglUrl: data['webglUrl'] ?? '',
+      trailerUrl: data['trailerUrl'] ?? '',
       rank: (data['rank'] ?? 0) as int,
       rating: (data['rating'] ?? 0.0).toDouble(),
       isRecommended: data['isRecommended'] ?? false,

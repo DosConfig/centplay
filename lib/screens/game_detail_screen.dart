@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart' as sp;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:video_player/video_player.dart';
 import '../providers/games_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../widgets/game_card.dart';
+import '../widgets/section_header.dart';
 import '../widgets/loading_widget.dart';
 
 class GameDetailScreen extends ConsumerWidget {
@@ -28,8 +30,10 @@ class GameDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Hero thumbnail
             game.localThumbnail != null
-                ? Image.asset(game.localThumbnail!, width: double.infinity, height: 220, fit: BoxFit.cover)
+                ? Image.asset(game.localThumbnail!,
+                    width: double.infinity, height: 220, fit: BoxFit.cover)
                 : CachedNetworkImage(
                     imageUrl: game.thumbnailUrl,
                     width: double.infinity,
@@ -40,7 +44,8 @@ class GameDetailScreen extends ConsumerWidget {
                     errorWidget: (_, __, ___) => Container(
                       height: 220,
                       color: Colors.grey[200],
-                      child: const Icon(Icons.image, size: 48, color: Colors.grey),
+                      child:
+                          const Icon(Icons.image, size: 48, color: Colors.grey),
                     ),
                   ),
             Padding(
@@ -48,6 +53,7 @@ class GameDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title + Rating
                   Row(
                     children: [
                       Expanded(
@@ -57,7 +63,7 @@ class GameDetailScreen extends ConsumerWidget {
                                 .headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.bold)),
                       ),
-                      const Icon(Icons.star, color: Colors.amber),
+                      Icon(Icons.star_rounded, color: Colors.amber[600]),
                       const SizedBox(width: 4),
                       Text(game.rating.toStringAsFixed(1),
                           style: Theme.of(context).textTheme.titleMedium),
@@ -68,7 +74,7 @@ class GameDetailScreen extends ConsumerWidget {
                       style: Theme.of(context)
                           .textTheme
                           .bodyLarge
-                          ?.copyWith(color: Colors.grey[600])),
+                          ?.copyWith(color: Colors.grey[500])),
                   const SizedBox(height: 24),
                   // Gradient play button
                   Container(
@@ -81,7 +87,8 @@ class GameDetailScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFE200FF).withValues(alpha: 0.3),
+                          color:
+                              const Color(0xFFE200FF).withValues(alpha: 0.3),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -91,7 +98,8 @@ class GameDetailScreen extends ConsumerWidget {
                       onPressed: () => context.push('/game/$id/play'),
                       icon: const Icon(Icons.play_arrow_rounded, size: 28),
                       label: const Text('게임 시작',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w700)),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
@@ -100,6 +108,7 @@ class GameDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -128,15 +137,21 @@ class GameDetailScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            if (similar.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text('비슷한 게임',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            // Gameplay trailer
+            if (game.trailerUrl.isNotEmpty) ...[
+              const SectionHeader(
+                  title: '게임플레이 영상', icon: Icons.videocam_rounded),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _TrailerPlayer(url: game.trailerUrl),
               ),
+              const SizedBox(height: 16),
+            ],
+            // Similar games
+            if (similar.isNotEmpty) ...[
+              const SectionHeader(title: '비슷한 게임', icon: Icons.grid_view_rounded),
               SizedBox(
-                height: 220,
+                height: 230,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -159,6 +174,88 @@ class GameDetailScreen extends ConsumerWidget {
   }
 }
 
+class _TrailerPlayer extends StatefulWidget {
+  final String url;
+  const _TrailerPlayer({required this.url});
+
+  @override
+  State<_TrailerPlayer> createState() => _TrailerPlayerState();
+}
+
+class _TrailerPlayerState extends State<_TrailerPlayer> {
+  VideoPlayerController? _controller;
+  bool _playing = false;
+
+  void _initAndPlay() {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize().then((_) {
+        setState(() => _playing = true);
+        _controller!.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: _playing && _controller != null && _controller!.value.isInitialized
+            ? Stack(
+                alignment: Alignment.center,
+                children: [
+                  VideoPlayer(_controller!),
+                  // Tap to pause/play
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _controller!.value.isPlaying
+                            ? _controller!.pause()
+                            : _controller!.play();
+                      });
+                    },
+                    child: Container(color: Colors.transparent),
+                  ),
+                  // Progress bar
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: VideoProgressIndicator(_controller!,
+                        allowScrubbing: true,
+                        colors: const VideoProgressColors(
+                          playedColor: Color(0xFFE200FF),
+                          bufferedColor: Colors.white24,
+                          backgroundColor: Colors.white12,
+                        )),
+                  ),
+                ],
+              )
+            : GestureDetector(
+                onTap: _initAndPlay,
+                child: Container(
+                  color: Colors.black,
+                  child: const Center(
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.white24,
+                      child: Icon(Icons.play_arrow_rounded,
+                          size: 40, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+}
+
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -166,7 +263,10 @@ class _ActionButton extends StatelessWidget {
   final Color? color;
 
   const _ActionButton(
-      {required this.icon, required this.label, required this.onTap, this.color});
+      {required this.icon,
+      required this.label,
+      required this.onTap,
+      this.color});
 
   @override
   Widget build(BuildContext context) {

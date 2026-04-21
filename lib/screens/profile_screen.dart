@@ -107,27 +107,38 @@ class ProfileScreen extends ConsumerWidget {
               Card(
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.dark_mode),
-                      title: const Text('다크 모드'),
-                      trailing: SegmentedButton<ThemeMode>(
-                        showSelectedIcon: false,
-                        segments: const [
-                          ButtonSegment(
-                              value: ThemeMode.light,
-                              icon: Icon(Icons.light_mode, size: 18)),
-                          ButtonSegment(
-                              value: ThemeMode.system,
-                              icon: Icon(Icons.auto_mode, size: 18)),
-                          ButtonSegment(
-                              value: ThemeMode.dark,
-                              icon: Icon(Icons.dark_mode, size: 18)),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.dark_mode),
+                          const SizedBox(width: 16),
+                          const Text('테마'),
+                          const Spacer(),
+                          SegmentedButton<ThemeMode>(
+                            showSelectedIcon: false,
+                            style: SegmentedButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                            ),
+                            segments: const [
+                              ButtonSegment(
+                                  value: ThemeMode.light,
+                                  icon: Icon(Icons.light_mode, size: 16)),
+                              ButtonSegment(
+                                  value: ThemeMode.system,
+                                  icon: Icon(Icons.auto_mode, size: 16)),
+                              ButtonSegment(
+                                  value: ThemeMode.dark,
+                                  icon: Icon(Icons.dark_mode, size: 16)),
+                            ],
+                            selected: {themeMode},
+                            onSelectionChanged: (selected) {
+                              ref.read(themeModeProvider.notifier).state =
+                                  selected.first;
+                            },
+                          ),
                         ],
-                        selected: {themeMode},
-                        onSelectionChanged: (selected) {
-                          ref.read(themeModeProvider.notifier).state =
-                              selected.first;
-                        },
                       ),
                     ),
                     const Divider(height: 1),

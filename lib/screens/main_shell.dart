@@ -10,10 +10,9 @@ class MainShell extends ConsumerWidget {
 
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/videos')) return 1;
-    if (location.startsWith('/friends')) return 2;
-    if (location.startsWith('/favorites')) return 3;
-    if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/friends')) return 1;
+    if (location.startsWith('/favorites')) return 2;
+    if (location.startsWith('/profile')) return 3;
     return 0;
   }
 
@@ -30,12 +29,10 @@ class MainShell extends ConsumerWidget {
             case 0:
               context.go('/home');
             case 1:
-              context.go('/videos');
-            case 2:
               context.go('/friends');
-            case 3:
+            case 2:
               context.go('/favorites');
-            case 4:
+            case 3:
               context.go('/profile');
           }
         },
@@ -44,10 +41,6 @@ class MainShell extends ConsumerWidget {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: '홈'),
-          const NavigationDestination(
-              icon: Icon(Icons.play_circle_outline),
-              selectedIcon: Icon(Icons.play_circle),
-              label: '영상'),
           NavigationDestination(
               icon: Badge(
                 isLabelVisible: unread > 0,

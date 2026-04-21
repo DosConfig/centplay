@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/home_screen.dart';
-import 'screens/video_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/game_detail_screen.dart';
@@ -37,8 +36,6 @@ final router = GoRouter(
       routes: [
         GoRoute(
             path: '/home', builder: (context, state) => const HomeScreen()),
-        GoRoute(
-            path: '/videos', builder: (context, state) => const VideoScreen()),
         GoRoute(
             path: '/friends',
             builder: (context, state) => const FriendsScreen()),
