@@ -150,13 +150,14 @@ class FirestoreService {
     }, SetOptions(merge: true));
   }
 
-  // Unread count across all chat rooms
+  // Unread count — single filter to avoid composite index requirement
   Stream<int> getUnreadCount(String uid) {
     return _db
         .collection('chatRooms')
         .where('participants', arrayContains: uid)
-        .where('lastSenderId', isNotEqualTo: uid)
         .snapshots()
-        .map((snap) => snap.docs.length);
+        .map((snap) => snap.docs
+            .where((doc) => doc.data()['lastSenderId'] != uid)
+            .length);
   }
 }
