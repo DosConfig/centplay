@@ -26,12 +26,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text('CentPlay',
+        title: const Text('CentPlay',
             style: TextStyle(
               fontFamily: 'SBAggroOTF',
               fontWeight: FontWeight.w700,
               fontSize: 22,
-              color: Theme.of(context).colorScheme.primary,
             )),
         actions: [
           IconButton(
