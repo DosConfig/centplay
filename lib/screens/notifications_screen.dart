@@ -179,8 +179,7 @@ class NotificationsScreen extends ConsumerWidget {
                       onTap: () {
                         notifier.markAsRead(n.id);
                         if (n.route != null) {
-                          Navigator.pop(context);
-                          context.push(n.route!);
+                          context.go(n.route!);
                         }
                       },
                     ),
