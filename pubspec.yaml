@@ -37,3 +37,12 @@ flutter:
   assets:
     - assets/images/games/
     - assets/images/videos/
+  fonts:
+    - family: SBAggroOTF
+      fonts:
+        - asset: assets/fonts/SBAggroOTF-L.otf
+          weight: 300
+        - asset: assets/fonts/SBAggroOTF-M.otf
+          weight: 500
+        - asset: assets/fonts/SBAggroOTF-B.otf
+          weight: 700
