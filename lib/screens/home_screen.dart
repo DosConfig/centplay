@@ -25,8 +25,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CentPlay',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: false,
+        title: Text('CentPlay',
+            style: TextStyle(
+              fontFamily: 'SBAggroOTF',
+              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              color: Theme.of(context).colorScheme.primary,
+            )),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -84,6 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 8),
                 const SectionHeader(title: '랭킹', icon: Icons.emoji_events_rounded),
                 ...allGames.map((game) => _buildRankingTile(context, game)),
+                const SizedBox(height: 32),
               ],
             ),
           );

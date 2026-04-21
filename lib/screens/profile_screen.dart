@@ -15,7 +15,8 @@ class ProfileScreen extends ConsumerWidget {
     final favoritesCount = ref.watch(favoritesProvider).value?.length ?? 0;
     final friendsCount = ref.watch(friendsProvider).value?.length ?? 0;
     final themeMode = ref.watch(themeModeProvider);
-    final colorScheme = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,22 +42,22 @@ class ProfileScreen extends ConsumerWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
-              const SizedBox(height: 16),
-              // Avatar with gradient ring
+              const SizedBox(height: 24),
+              // Avatar
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
-                      colors: [colorScheme.primary, colorScheme.secondary],
+                      colors: [cs.primary, cs.secondary],
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 48,
-                    backgroundColor: colorScheme.surface,
+                    radius: 44,
+                    backgroundColor: cs.surface,
                     backgroundImage: user.photoURL != null
                         ? NetworkImage(user.photoURL!)
                         : null,
@@ -64,17 +65,17 @@ class ProfileScreen extends ConsumerWidget {
                         ? Text(
                             (user.displayName ?? 'G')[0].toUpperCase(),
                             style: TextStyle(
-                              fontSize: 36,
+                              fontSize: 32,
                               fontWeight: FontWeight.w700,
                               fontFamily: 'SBAggroOTF',
-                              color: colorScheme.primary,
+                              color: cs.primary,
                             ),
                           )
                         : null,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Center(
                 child: Text(
                   user.displayName ?? '사용자',
@@ -89,7 +90,8 @@ class ProfileScreen extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(user.email!,
-                        style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                        style:
+                            TextStyle(color: Colors.grey[500], fontSize: 14)),
                   ),
                 ),
               if (user.isAnonymous)
@@ -100,13 +102,13 @@ class ProfileScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.12),
+                        color: cs.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text('Guest',
+                      child: Text('Guest',
                           style: TextStyle(
                               fontSize: 12,
-                              color: Colors.orange,
+                              color: cs.primary,
                               fontWeight: FontWeight.w600)),
                     ),
                   ),
@@ -114,141 +116,117 @@ class ProfileScreen extends ConsumerWidget {
 
               const SizedBox(height: 28),
 
-              // === My Activity ===
               _SectionLabel(label: '내 활동'),
-              Card(
-                child: Column(
-                  children: [
-                    _ProfileTile(
-                      icon: Icons.favorite_rounded,
-                      title: '찜한 게임',
-                      trailing: '$favoritesCount개',
-                      onTap: () => context.push('/favorites'),
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.people_rounded,
-                      title: '친구',
-                      trailing: '$friendsCount명',
-                      onTap: () => context.push('/friends'),
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.shopping_bag_rounded,
-                      title: '상점',
-                      onTap: () => context.push('/shop'),
-                    ),
-                  ],
-                ),
+              _MenuCard(
+                children: [
+                  _MenuTile(
+                    icon: Icons.favorite_rounded,
+                    title: '찜한 게임',
+                    trailing: '$favoritesCount개',
+                    onTap: () => context.push('/favorites'),
+                  ),
+                  _MenuTile(
+                    icon: Icons.people_rounded,
+                    title: '친구',
+                    trailing: '$friendsCount명',
+                    onTap: () => context.push('/friends'),
+                  ),
+                  _MenuTile(
+                    icon: Icons.shopping_bag_rounded,
+                    title: '상점',
+                    onTap: () => context.push('/shop'),
+                    isLast: true,
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),
-
-              // === Settings ===
               _SectionLabel(label: '설정'),
-              Card(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(Icons.palette_rounded,
-                                size: 20, color: colorScheme.primary),
+              _MenuCard(
+                children: [
+                  // Theme row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        _IconBox(icon: Icons.palette_rounded, cs: cs, isDark: isDark),
+                        const SizedBox(width: 14),
+                        const Text('테마', style: TextStyle(fontSize: 15)),
+                        const Spacer(),
+                        SegmentedButton<ThemeMode>(
+                          showSelectedIcon: false,
+                          style: SegmentedButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10),
                           ),
-                          const SizedBox(width: 12),
-                          const Text('테마'),
-                          const Spacer(),
-                          SegmentedButton<ThemeMode>(
-                            showSelectedIcon: false,
-                            style: SegmentedButton.styleFrom(
-                              visualDensity: VisualDensity.compact,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                            ),
-                            segments: const [
-                              ButtonSegment(
-                                  value: ThemeMode.light,
-                                  icon: Icon(Icons.light_mode, size: 15)),
-                              ButtonSegment(
-                                  value: ThemeMode.system,
-                                  icon: Icon(Icons.auto_mode, size: 15)),
-                              ButtonSegment(
-                                  value: ThemeMode.dark,
-                                  icon: Icon(Icons.dark_mode, size: 15)),
-                            ],
-                            selected: {themeMode},
-                            onSelectionChanged: (s) {
-                              ref.read(themeModeProvider.notifier).state =
-                                  s.first;
-                            },
-                          ),
-                        ],
-                      ),
+                          segments: const [
+                            ButtonSegment(
+                                value: ThemeMode.light,
+                                icon: Icon(Icons.light_mode, size: 15)),
+                            ButtonSegment(
+                                value: ThemeMode.system,
+                                icon: Icon(Icons.auto_mode, size: 15)),
+                            ButtonSegment(
+                                value: ThemeMode.dark,
+                                icon: Icon(Icons.dark_mode, size: 15)),
+                          ],
+                          selected: {themeMode},
+                          onSelectionChanged: (s) {
+                            ref.read(themeModeProvider.notifier).state =
+                                s.first;
+                          },
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.notifications_rounded,
-                      title: '알림 설정',
-                      onTap: () => context.push('/notifications'),
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.language_rounded,
-                      title: '언어',
-                      trailing: '한국어',
-                      onTap: () {},
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.gamepad_rounded,
-                      title: '컨트롤러 설정',
-                      trailing: 'Bluetooth',
-                      onTap: () => context.push('/controller-settings'),
-                    ),
-                  ],
-                ),
+                  ),
+                  _MenuTile(
+                    icon: Icons.notifications_rounded,
+                    title: '알림 설정',
+                    onTap: () => context.push('/notifications'),
+                  ),
+                  _MenuTile(
+                    icon: Icons.language_rounded,
+                    title: '언어',
+                    trailing: '한국어',
+                    onTap: () {},
+                  ),
+                  _MenuTile(
+                    icon: Icons.gamepad_rounded,
+                    title: '컨트롤러 설정',
+                    trailing: 'Bluetooth',
+                    onTap: () => context.push('/controller-settings'),
+                    isLast: true,
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),
-
-              // === About ===
               _SectionLabel(label: '정보'),
-              Card(
-                child: Column(
-                  children: [
-                    _ProfileTile(
-                      icon: Icons.info_outline_rounded,
-                      title: '앱 버전',
-                      trailing: '1.0.0',
-                      onTap: () {},
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.description_outlined,
-                      title: '이용약관',
-                      onTap: () {},
-                    ),
-                    const Divider(height: 1, indent: 56),
-                    _ProfileTile(
-                      icon: Icons.shield_outlined,
-                      title: '개인정보 처리방침',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
+              _MenuCard(
+                children: [
+                  _MenuTile(
+                    icon: Icons.info_outline_rounded,
+                    title: '앱 버전',
+                    trailing: '1.0.0',
+                    onTap: () {},
+                  ),
+                  _MenuTile(
+                    icon: Icons.description_outlined,
+                    title: '이용약관',
+                    onTap: () {},
+                  ),
+                  _MenuTile(
+                    icon: Icons.shield_outlined,
+                    title: '개인정보 처리방침',
+                    onTap: () {},
+                    isLast: true,
+                  ),
+                ],
               ),
 
               const SizedBox(height: 28),
-
-              // Logout
               OutlinedButton.icon(
                 onPressed: () async {
                   await ref.read(authServiceProvider).signOut();
@@ -258,12 +236,11 @@ class ProfileScreen extends ConsumerWidget {
                 label: const Text('로그아웃'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
-                  side: BorderSide(
-                      color: Colors.red.withValues(alpha: 0.3)),
+                  side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
             ],
           );
         },
@@ -291,44 +268,93 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-class _ProfileTile extends StatelessWidget {
+class _MenuCard extends StatelessWidget {
+  final List<Widget> children;
+  const _MenuCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: children),
+    );
+  }
+}
+
+class _IconBox extends StatelessWidget {
+  final IconData icon;
+  final ColorScheme cs;
+  final bool isDark;
+  const _IconBox({required this.icon, required this.cs, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: isDark
+            ? cs.primary.withValues(alpha: 0.15)
+            : cs.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(icon,
+          size: 18, color: isDark ? cs.primary.withValues(alpha: 0.8) : cs.primary),
+    );
+  }
+}
+
+class _MenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? trailing;
   final VoidCallback? onTap;
+  final bool isLast;
 
-  const _ProfileTile({
+  const _MenuTile({
     required this.icon,
     required this.title,
     this.trailing,
     this.onTap,
+    this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
-    return ListTile(
-      leading: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            child: Row(
+              children: [
+                _IconBox(icon: icon, cs: cs, isDark: isDark),
+                const SizedBox(width: 14),
+                Expanded(
+                    child:
+                        Text(title, style: const TextStyle(fontSize: 15))),
+                if (trailing != null)
+                  Text(trailing!,
+                      style:
+                          TextStyle(color: Colors.grey[500], fontSize: 14)),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right, size: 18, color: Colors.grey[400]),
+              ],
+            ),
+          ),
         ),
-        child: Icon(icon, size: 20, color: color),
-      ),
-      title: Text(title, style: const TextStyle(fontSize: 15)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (trailing != null)
-            Text(trailing!,
-                style: TextStyle(color: Colors.grey[500], fontSize: 14)),
-          const SizedBox(width: 4),
-          Icon(Icons.chevron_right, size: 20, color: Colors.grey[400]),
-        ],
-      ),
-      onTap: onTap,
+        if (!isLast)
+          Divider(
+            height: 1,
+            indent: 0,
+            color: isDark ? Colors.grey[800] : Colors.grey[200],
+          ),
+      ],
     );
   }
 }
