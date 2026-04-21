@@ -140,7 +140,9 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       _controller.loadRequest(Uri.parse(game.webglUrl));
     }
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
       body: KeyboardListener(
         focusNode: _focusNode,
         autofocus: true,
@@ -196,6 +198,6 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
