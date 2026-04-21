@@ -33,8 +33,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => _showSearch(context, gamesAsync.value ?? []),
           ),
           IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {}),
+              icon: const Badge(
+                smallSize: 8,
+                child: Icon(Icons.notifications_outlined),
+              ),
+              onPressed: () => context.push('/notifications')),
         ],
       ),
       body: gamesAsync.when(

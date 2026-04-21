@@ -11,6 +11,7 @@ import 'screens/webview_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/friends_screen.dart';
 import 'screens/chat_screen.dart';
+import 'screens/notifications_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -36,12 +37,6 @@ final router = GoRouter(
       routes: [
         GoRoute(
             path: '/home', builder: (context, state) => const HomeScreen()),
-        GoRoute(
-            path: '/friends',
-            builder: (context, state) => const FriendsScreen()),
-        GoRoute(
-            path: '/favorites',
-            builder: (context, state) => const FavoritesScreen()),
         GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfileScreen()),
@@ -79,6 +74,21 @@ final router = GoRouter(
       path: '/shop',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ShopScreen(),
+    ),
+    GoRoute(
+      path: '/friends',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FriendsScreen(),
+    ),
+    GoRoute(
+      path: '/favorites',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FavoritesScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/chat/:friendUid',
