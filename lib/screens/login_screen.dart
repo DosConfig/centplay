@@ -41,47 +41,89 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.games,
-                  size: 80, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(height: 24),
-              Text('CentPlay',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineLarge
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const Spacer(flex: 3),
+              // Logo area
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [colorScheme.primary, colorScheme.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(Icons.games_rounded,
+                    size: 52, color: Colors.white),
+              ),
+              const SizedBox(height: 28),
+              const Text(
+                'CentPlay',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -1,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('미니게임을 즐겨보세요',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Colors.grey)),
-              const SizedBox(height: 48),
+              Text(
+                '미니게임을 즐겨보세요',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 15,
+                ),
+              ),
+              const Spacer(flex: 2),
+              // Google Sign In
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: FilledButton.icon(
                   onPressed: () => _signInWithGoogle(context, ref),
-                  icon: const Icon(Icons.login),
+                  icon: const Icon(Icons.login, size: 20),
                   label: const Text('Google로 시작하기'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF0A0A0A),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
+              // Guest
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: OutlinedButton.icon(
                   onPressed: () => _signInAnonymously(context, ref),
-                  icon: const Icon(Icons.person_outline),
+                  icon: const Icon(Icons.person_outline, size: 20),
                   label: const Text('게스트로 둘러보기'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white70,
+                    side: BorderSide(color: Colors.grey[700]!),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
               ),
+              const Spacer(),
+              Text(
+                'Powered by Flutter + Firebase',
+                style: TextStyle(color: Colors.grey[700], fontSize: 12),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

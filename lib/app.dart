@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'router.dart';
 import 'providers/theme_provider.dart';
+import 'core/theme.dart';
 
 class CentPlayApp extends ConsumerStatefulWidget {
   const CentPlayApp({super.key});
@@ -43,9 +43,8 @@ class _CentPlayAppState extends ConsumerState<CentPlayApp> {
           leading: const Icon(Icons.notifications_active),
           actions: [
             TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(ctx).hideCurrentMaterialBanner();
-              },
+              onPressed: () =>
+                  ScaffoldMessenger.of(ctx).hideCurrentMaterialBanner(),
               child: const Text('닫기'),
             ),
             if (route != null)
@@ -60,7 +59,6 @@ class _CentPlayAppState extends ConsumerState<CentPlayApp> {
         ),
       );
 
-      // Auto-dismiss after 4 seconds
       Future.delayed(const Duration(seconds: 4), () {
         if (ctx.mounted) {
           ScaffoldMessenger.of(ctx).hideCurrentMaterialBanner();
@@ -72,24 +70,13 @@ class _CentPlayAppState extends ConsumerState<CentPlayApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
-    final textTheme = GoogleFonts.notoSansKrTextTheme();
 
     return MaterialApp.router(
       title: 'CentPlay',
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF6C5CE7),
-        brightness: Brightness.light,
-        textTheme: textTheme,
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF6C5CE7),
-        brightness: Brightness.dark,
-        textTheme: textTheme,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       routerConfig: router,
     );
   }
