@@ -13,6 +13,7 @@ import 'screens/friends_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/controller_settings_screen.dart';
+import 'screens/legal_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -103,6 +104,18 @@ final router = GoRouter(
       path: '/controller-settings',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ControllerSettingsScreen(),
+    ),
+    GoRoute(
+      path: '/terms',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) =>
+          const LegalScreen(title: '이용약관', type: 'terms'),
+    ),
+    GoRoute(
+      path: '/privacy',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) =>
+          const LegalScreen(title: '개인정보 처리방침', type: 'privacy'),
     ),
     GoRoute(
       path: '/chat/:friendUid',

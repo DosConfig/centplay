@@ -102,10 +102,20 @@ class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFAFAFA),
+        surfaceTintColor: Colors.transparent,
         indicatorColor: _purple.withValues(alpha: 0.12),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         height: 64,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? _purple : Colors.transparent),
+          foregroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? Colors.white : Colors.grey),
+          side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade300)),
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -190,10 +200,20 @@ class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: const Color(0xFF111111),
+        surfaceTintColor: Colors.transparent,
         indicatorColor: _purple.withValues(alpha: 0.2),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         height: 64,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? _purple : Colors.transparent),
+          foregroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? Colors.white : Colors.grey[600]),
+          side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade700)),
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,

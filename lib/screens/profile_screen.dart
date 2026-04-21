@@ -215,12 +215,12 @@ class ProfileScreen extends ConsumerWidget {
                   _MenuTile(
                     icon: Icons.description_outlined,
                     title: '이용약관',
-                    onTap: () {},
+                    onTap: () => context.push('/terms'),
                   ),
                   _MenuTile(
                     icon: Icons.shield_outlined,
                     title: '개인정보 처리방침',
-                    onTap: () {},
+                    onTap: () => context.push('/privacy'),
                     isLast: true,
                   ),
                 ],
