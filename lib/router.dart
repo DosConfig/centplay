@@ -53,8 +53,24 @@ final router = GoRouter(
     GoRoute(
       path: '/game/:id',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) =>
-          GameDetailScreen(id: state.pathParameters['id']!),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: GameDetailScreen(id: state.pathParameters['id']!),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.05),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              )),
+              child: child,
+            ),
+          );
+        },
+      ),
     ),
     GoRoute(
       path: '/game/:id/play',

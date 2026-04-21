@@ -70,13 +70,33 @@ class GameDetailScreen extends ConsumerWidget {
                           .bodyLarge
                           ?.copyWith(color: Colors.grey[600])),
                   const SizedBox(height: 24),
-                  SizedBox(
+                  // Gradient play button
+                  Container(
                     width: double.infinity,
-                    height: 52,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFE200FF), Color(0xFF4765FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFE200FF).withValues(alpha: 0.3),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: FilledButton.icon(
                       onPressed: () => context.push('/game/$id/play'),
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('게임 시작'),
+                      icon: const Icon(Icons.play_arrow_rounded, size: 28),
+                      label: const Text('게임 시작',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

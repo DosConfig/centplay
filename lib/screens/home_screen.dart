@@ -61,9 +61,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onRefresh: () async => ref.invalidate(gamesProvider),
             child: ListView(
               children: [
-                const SectionHeader(title: '추천 게임'),
+                const SectionHeader(title: '추천 게임', icon: Icons.local_fire_department_rounded),
                 SizedBox(
-                  height: 220,
+                  height: 230,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -79,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const SectionHeader(title: '랭킹'),
+                const SectionHeader(title: '랭킹', icon: Icons.emoji_events_rounded),
                 ...allGames.map((game) => _buildRankingTile(context, game)),
               ],
             ),
