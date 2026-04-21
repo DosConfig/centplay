@@ -121,7 +121,6 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     _ProfileTile(
                       icon: Icons.favorite_rounded,
-                      iconColor: Colors.red,
                       title: '찜한 게임',
                       trailing: '$favoritesCount개',
                       onTap: () => context.push('/favorites'),
@@ -129,7 +128,6 @@ class ProfileScreen extends ConsumerWidget {
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.people_rounded,
-                      iconColor: colorScheme.secondary,
                       title: '친구',
                       trailing: '$friendsCount명',
                       onTap: () => context.push('/friends'),
@@ -137,7 +135,6 @@ class ProfileScreen extends ConsumerWidget {
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.shopping_bag_rounded,
-                      iconColor: Colors.green,
                       title: '상점',
                       onTap: () => context.push('/shop'),
                     ),
@@ -152,7 +149,6 @@ class ProfileScreen extends ConsumerWidget {
               Card(
                 child: Column(
                   children: [
-                    // Theme
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                       child: Row(
@@ -161,11 +157,11 @@ class ProfileScreen extends ConsumerWidget {
                             width: 36,
                             height: 36,
                             decoration: BoxDecoration(
-                              color: Colors.deepPurple.withValues(alpha: 0.12),
+                              color: colorScheme.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.palette_rounded,
-                                size: 20, color: Colors.deepPurple),
+                            child: Icon(Icons.palette_rounded,
+                                size: 20, color: colorScheme.primary),
                           ),
                           const SizedBox(width: 12),
                           const Text('테마'),
@@ -200,14 +196,12 @@ class ProfileScreen extends ConsumerWidget {
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.notifications_rounded,
-                      iconColor: Colors.orange,
                       title: '알림 설정',
                       onTap: () => context.push('/notifications'),
                     ),
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.language_rounded,
-                      iconColor: Colors.teal,
                       title: '언어',
                       trailing: '한국어',
                       onTap: () {},
@@ -215,7 +209,6 @@ class ProfileScreen extends ConsumerWidget {
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.gamepad_rounded,
-                      iconColor: colorScheme.primary,
                       title: '컨트롤러 설정',
                       trailing: 'Bluetooth',
                       onTap: () => context.push('/controller-settings'),
@@ -233,7 +226,6 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     _ProfileTile(
                       icon: Icons.info_outline_rounded,
-                      iconColor: Colors.grey,
                       title: '앱 버전',
                       trailing: '1.0.0',
                       onTap: () {},
@@ -241,14 +233,12 @@ class ProfileScreen extends ConsumerWidget {
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.description_outlined,
-                      iconColor: Colors.grey,
                       title: '이용약관',
                       onTap: () {},
                     ),
                     const Divider(height: 1, indent: 56),
                     _ProfileTile(
                       icon: Icons.shield_outlined,
-                      iconColor: Colors.grey,
                       title: '개인정보 처리방침',
                       onTap: () {},
                     ),
@@ -303,14 +293,12 @@ class _SectionLabel extends StatelessWidget {
 
 class _ProfileTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
   final String title;
   final String? trailing;
   final VoidCallback? onTap;
 
   const _ProfileTile({
     required this.icon,
-    required this.iconColor,
     required this.title,
     this.trailing,
     this.onTap,
@@ -318,15 +306,16 @@ class _ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
     return ListTile(
       leading: Container(
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.12),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 20, color: iconColor),
+        child: Icon(icon, size: 20, color: color),
       ),
       title: Text(title, style: const TextStyle(fontSize: 15)),
       trailing: Row(
