@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../providers/favorites_provider.dart';
+import '../providers/friends_provider.dart';
+import '../providers/theme_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -11,6 +13,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(authStateProvider);
     final favoritesCount = ref.watch(favoritesProvider).value?.length ?? 0;
+    final friendsCount = ref.watch(friendsProvider).value?.length ?? 0;
+    final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('프로필')),
@@ -59,7 +63,25 @@ class ProfileScreen extends ConsumerWidget {
                         .bodyMedium
                         ?.copyWith(color: Colors.grey)),
               ),
+              if (user.isAnonymous)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text('Guest',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.orange)),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 32),
+              // Stats
               Card(
                 child: Column(
                   children: [
@@ -68,6 +90,52 @@ class ProfileScreen extends ConsumerWidget {
                       title: const Text('찜한 게임'),
                       trailing: Text('$favoritesCount개',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.people),
+                      title: const Text('친구'),
+                      trailing: Text('$friendsCount명',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      onTap: () => context.go('/friends'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Settings
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.dark_mode),
+                      title: const Text('다크 모드'),
+                      trailing: SegmentedButton<ThemeMode>(
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: Icon(Icons.light_mode, size: 18)),
+                          ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: Icon(Icons.auto_mode, size: 18)),
+                          ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: Icon(Icons.dark_mode, size: 18)),
+                        ],
+                        selected: {themeMode},
+                        onSelectionChanged: (selected) {
+                          ref.read(themeModeProvider.notifier).state =
+                              selected.first;
+                        },
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications_outlined),
+                      title: const Text('알림 설정'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -80,6 +148,7 @@ class ProfileScreen extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('로그아웃'),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
               ),
             ],
           );

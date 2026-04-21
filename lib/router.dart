@@ -10,6 +10,8 @@ import 'screens/profile_screen.dart';
 import 'screens/game_detail_screen.dart';
 import 'screens/webview_screen.dart';
 import 'screens/shop_screen.dart';
+import 'screens/friends_screen.dart';
+import 'screens/chat_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -38,6 +40,9 @@ final router = GoRouter(
         GoRoute(
             path: '/videos', builder: (context, state) => const VideoScreen()),
         GoRoute(
+            path: '/friends',
+            builder: (context, state) => const FriendsScreen()),
+        GoRoute(
             path: '/favorites',
             builder: (context, state) => const FavoritesScreen()),
         GoRoute(
@@ -61,6 +66,12 @@ final router = GoRouter(
       path: '/shop',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ShopScreen(),
+    ),
+    GoRoute(
+      path: '/chat/:friendUid',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) =>
+          ChatScreen(friendUid: state.pathParameters['friendUid']!),
     ),
   ],
 );

@@ -18,22 +18,38 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
   late WebViewController _controller;
   bool _isLoading = true;
   bool _urlLoaded = false;
+  final FocusNode _focusNode = FocusNode();
+
+  // Key mapping: physical keyboard/gamepad → JS keydown events
+  static final _keyMap = <LogicalKeyboardKey, String>{
+    LogicalKeyboardKey.arrowUp: 'ArrowUp',
+    LogicalKeyboardKey.arrowDown: 'ArrowDown',
+    LogicalKeyboardKey.arrowLeft: 'ArrowLeft',
+    LogicalKeyboardKey.arrowRight: 'ArrowRight',
+    LogicalKeyboardKey.space: ' ',
+    LogicalKeyboardKey.enter: 'Enter',
+    LogicalKeyboardKey.escape: 'Escape',
+    LogicalKeyboardKey.keyW: 'w',
+    LogicalKeyboardKey.keyA: 'a',
+    LogicalKeyboardKey.keyS: 's',
+    LogicalKeyboardKey.keyD: 'd',
+  };
 
   @override
   void initState() {
     super.initState();
-    // Landscape 허용
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    // Hide system UI for immersive gaming
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
         onPageFinished: (_) {
-          // viewport를 화면에 맞게 스케일링
           _controller.runJavaScript('''
             var meta = document.querySelector('meta[name="viewport"]');
             if (!meta) {
@@ -54,14 +70,35 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
           ''');
           setState(() => _isLoading = false);
         },
-      ));
+      ))
+      ..addJavaScriptChannel(
+        'GameBridge',
+        onMessageReceived: (message) {
+          // Game → Flutter communication (e.g., score updates)
+          debugPrint('GameBridge: ${message.message}');
+        },
+      );
   }
 
   @override
   void dispose() {
-    // Portrait로 복원
+    _focusNode.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  void _handleKeyEvent(KeyEvent event) {
+    final jsKey = _keyMap[event.logicalKey];
+    if (jsKey == null) return;
+
+    final eventType = event is KeyDownEvent ? 'keydown' : 'keyup';
+    _controller.runJavaScript('''
+      document.dispatchEvent(new KeyboardEvent('$eventType', {
+        key: '$jsKey',
+        bubbles: true
+      }));
+    ''');
   }
 
   @override
@@ -78,19 +115,30 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          // Gamepad indicator
+          if (HardwareKeyboard.instance.logicalKeysPressed.isNotEmpty)
+            const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Icon(Icons.gamepad, size: 20, color: Colors.green),
+            ),
           IconButton(
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop()),
         ],
       ),
-      body: game == null || game.webglUrl.isEmpty
-          ? const Center(child: Text('게임 URL이 설정되지 않았습니다'))
-          : Stack(
-              children: [
-                WebViewWidget(controller: _controller),
-                if (_isLoading) const LoadingWidget(),
-              ],
-            ),
+      body: KeyboardListener(
+        focusNode: _focusNode,
+        autofocus: true,
+        onKeyEvent: _handleKeyEvent,
+        child: game == null || game.webglUrl.isEmpty
+            ? const Center(child: Text('게임 URL이 설정되지 않았습니다'))
+            : Stack(
+                children: [
+                  WebViewWidget(controller: _controller),
+                  if (_isLoading) const LoadingWidget(),
+                ],
+              ),
+      ),
     );
   }
 }
