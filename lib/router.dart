@@ -17,13 +17,17 @@ import 'screens/controller_settings_screen.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-// No animation page for tab switching
+Widget _noTransition(
+    BuildContext _, Animation<double> __, Animation<double> ___, Widget child) {
+  return child;
+}
+
 Page<void> _noAnimationPage(Widget child) {
   return CustomTransitionPage(
     child: child,
     transitionDuration: Duration.zero,
     reverseTransitionDuration: Duration.zero,
-    transitionsBuilder: (_, __, ___, child) => child,
+    transitionsBuilder: _noTransition,
   );
 }
 
@@ -88,7 +92,12 @@ final router = GoRouter(
     GoRoute(
       path: '/notifications',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const NotificationsScreen(),
+      pageBuilder: (context, state) => const CustomTransitionPage(
+        child: NotificationsScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        transitionsBuilder: _noTransition,
+      ),
     ),
     GoRoute(
       path: '/controller-settings',
