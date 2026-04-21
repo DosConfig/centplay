@@ -28,19 +28,21 @@ class GameDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CachedNetworkImage(
-              imageUrl: game.thumbnailUrl,
-              width: double.infinity,
-              height: 220,
-              fit: BoxFit.cover,
-              placeholder: (_, __) =>
-                  Container(height: 220, color: Colors.grey[200]),
-              errorWidget: (_, __, ___) => Container(
-                height: 220,
-                color: Colors.grey[200],
-                child: const Icon(Icons.image, size: 48, color: Colors.grey),
-              ),
-            ),
+            game.localThumbnail != null
+                ? Image.asset(game.localThumbnail!, width: double.infinity, height: 220, fit: BoxFit.cover)
+                : CachedNetworkImage(
+                    imageUrl: game.thumbnailUrl,
+                    width: double.infinity,
+                    height: 220,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) =>
+                        Container(height: 220, color: Colors.grey[200]),
+                    errorWidget: (_, __, ___) => Container(
+                      height: 220,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image, size: 48, color: Colors.grey),
+                    ),
+                  ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

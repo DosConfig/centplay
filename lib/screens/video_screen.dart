@@ -85,18 +85,20 @@ class _VideoCardState extends State<_VideoCard> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: widget.video.thumbnailUrl,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) =>
-                              Container(color: Colors.grey[300]),
-                          errorWidget: (_, __, ___) => Container(
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.videocam,
-                                size: 48, color: Colors.grey),
-                          ),
-                        ),
+                        widget.video.localThumbnail != null
+                            ? Image.asset(widget.video.localThumbnail!, width: double.infinity, fit: BoxFit.cover)
+                            : CachedNetworkImage(
+                                imageUrl: widget.video.thumbnailUrl,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) =>
+                                    Container(color: Colors.grey[300]),
+                                errorWidget: (_, __, ___) => Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.videocam,
+                                      size: 48, color: Colors.grey),
+                                ),
+                              ),
                         const CircleAvatar(
                           radius: 28,
                           backgroundColor: Colors.black54,

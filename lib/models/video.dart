@@ -15,6 +15,13 @@ class Video {
     required this.viewCount,
   });
 
+  static const _localThumbnails = {
+    'video-1': 'assets/images/videos/video_1.jpg',
+    'video-2': 'assets/images/videos/video_2.jpg',
+  };
+
+  String? get localThumbnail => _localThumbnails[id];
+
   factory Video.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Video(

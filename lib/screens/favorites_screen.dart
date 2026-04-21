@@ -40,17 +40,19 @@ class FavoritesScreen extends ConsumerWidget {
                 child: ListTile(
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      game.thumbnailUrl,
-                      width: 56,
-                      height: 56,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                          width: 56,
-                          height: 56,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.gamepad)),
-                    ),
+                    child: game.localThumbnail != null
+                        ? Image.asset(game.localThumbnail!, width: 56, height: 56, fit: BoxFit.cover)
+                        : Image.network(
+                            game.thumbnailUrl,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                                width: 56,
+                                height: 56,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.gamepad)),
+                          ),
                   ),
                   title: Text(game.title,
                       style: const TextStyle(fontWeight: FontWeight.w600)),

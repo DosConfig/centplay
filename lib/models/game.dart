@@ -23,6 +23,16 @@ class Game {
     required this.category,
   });
 
+  static const _localThumbnails = {
+    'pizza-ready': 'assets/images/games/bubble_tower_3d.png',
+    'burger-please': 'assets/images/games/cut_the_rope.jpg',
+    'snake-clash': 'assets/images/games/slope.jpg',
+    'xp-hero': 'assets/images/games/moto_x3m.jpg',
+    'centplay-demo': 'assets/images/games/2048.jpg',
+  };
+
+  String? get localThumbnail => _localThumbnails[id];
+
   factory Game.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Game(

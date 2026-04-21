@@ -20,25 +20,33 @@ class GameCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: CachedNetworkImage(
-                imageUrl: game.thumbnailUrl,
-                width: width,
-                height: width,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  width: width,
-                  height: width,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.gamepad, size: 32, color: Colors.grey),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: width,
-                  height: width,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image,
-                      size: 32, color: Colors.grey),
-                ),
-              ),
+              child: game.localThumbnail != null
+                  ? Image.asset(
+                      game.localThumbnail!,
+                      width: width,
+                      height: width,
+                      fit: BoxFit.cover,
+                    )
+                  : CachedNetworkImage(
+                      imageUrl: game.thumbnailUrl,
+                      width: width,
+                      height: width,
+                      fit: BoxFit.cover,
+                      placeholder: (_, __) => Container(
+                        width: width,
+                        height: width,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.gamepad,
+                            size: 32, color: Colors.grey),
+                      ),
+                      errorWidget: (_, __, ___) => Container(
+                        width: width,
+                        height: width,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.broken_image,
+                            size: 32, color: Colors.grey),
+                      ),
+                    ),
             ),
             const SizedBox(height: 8),
             Text(
