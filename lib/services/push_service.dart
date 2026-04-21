@@ -13,7 +13,12 @@ class PushService {
     );
     if (settings.authorizationStatus == AuthorizationStatus.denied) return;
 
-    final token = await _messaging.getToken();
+    String? token;
+    try {
+      token = await _messaging.getToken();
+    } catch (_) {
+      // APNS token not available (e.g., iOS simulator)
+    }
     if (uid != null && token != null) {
       await FirebaseFirestore.instance
           .collection('users')
