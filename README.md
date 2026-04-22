@@ -2,7 +2,13 @@
 
 미니게임 허브 앱. Flutter + Firebase + WebView 기반.
 
-슈퍼센트 Flutter 클라이언트 개발자 포지션 공고의 직무를 직접 구현한 데모 프로젝트입니다.
+슈퍼센트 Flutter 클라이언트 개발자 포지션 공고의 직무를 참고해 구현한 데모 프로젝트입니다.
+
+## 데모
+
+<p align="center">
+  <img src="demo.gif" width="280" alt="CentPlay Demo">
+</p>
 
 ## 직무 매핑
 
