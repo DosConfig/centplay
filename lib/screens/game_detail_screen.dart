@@ -189,6 +189,7 @@ class _TrailerPlayerState extends State<_TrailerPlayer> {
   void _initAndPlay() {
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
       ..initialize().then((_) {
+        if (!mounted) return;
         setState(() => _playing = true);
         _controller!.play();
       });

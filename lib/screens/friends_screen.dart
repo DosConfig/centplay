@@ -106,6 +106,11 @@ class FriendsScreen extends ConsumerWidget {
                 return;
               }
 
+              if (myUid == null) {
+                if (ctx.mounted) Navigator.pop(ctx);
+                return;
+              }
+
               final friendData = results.first;
               if (friendData['uid'] == myUid) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -115,7 +120,7 @@ class FriendsScreen extends ConsumerWidget {
                 return;
               }
 
-              await firestore.addFriend(myUid!, friendData['uid']);
+              await firestore.addFriend(myUid, friendData['uid']);
               if (ctx.mounted) Navigator.pop(ctx);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

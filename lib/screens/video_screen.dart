@@ -55,7 +55,7 @@ class _VideoCardState extends State<_VideoCard> {
     _controller =
         VideoPlayerController.networkUrl(Uri.parse(widget.video.videoUrl))
           ..initialize().then((_) {
-            setState(() {});
+            if (!mounted) return;
             _controller!.play();
             setState(() => _isPlaying = true);
           });

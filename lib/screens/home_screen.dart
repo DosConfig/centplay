@@ -16,8 +16,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final String _searchQuery = '';
-
   @override
   Widget build(BuildContext context) {
     final gamesAsync = ref.watch(gamesProvider);
@@ -52,18 +50,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onRetry: () => ref.invalidate(gamesProvider)),
         data: (allGames) {
           final recommended = recommendedAsync.value ?? [];
-
-          // If searching, show filtered results
-          if (_searchQuery.isNotEmpty) {
-            final filtered = allGames
-                .where((g) =>
-                    g.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                    g.category
-                        .toLowerCase()
-                        .contains(_searchQuery.toLowerCase()))
-                .toList();
-            return _buildSearchResults(filtered);
-          }
 
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(gamesProvider),
@@ -128,26 +114,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       onTap: () => context.push('/game/${game.id}'),
-    );
-  }
-
-  Widget _buildSearchResults(List<Game> games) {
-    if (games.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text('"$_searchQuery" 검색 결과가 없습니다'),
-          ],
-        ),
-      );
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: games.length,
-      itemBuilder: (context, index) => _buildRankingTile(context, games[index]),
     );
   }
 

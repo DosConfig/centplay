@@ -41,24 +41,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _signInWithGoogle() async {
     final navigator = GoRouter.of(context);
     final authService = ref.read(authServiceProvider);
-    final credential = await authService.signInWithGoogle();
-    if (credential?.user != null) {
-      final user = credential!.user!;
-      await FirestoreService().saveUserProfile(
-        user.uid, user.displayName ?? '', user.email ?? '', user.photoURL);
-      navigator.go('/home');
+    try {
+      final credential = await authService.signInWithGoogle();
+      if (credential?.user != null) {
+        final user = credential!.user!;
+        await FirestoreService().saveUserProfile(
+          user.uid, user.displayName ?? '', user.email ?? '', user.photoURL);
+        navigator.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google 로그인에 실패했습니다. 다시 시도해주세요.')),
+        );
+      }
     }
   }
 
   Future<void> _signInAnonymously() async {
     final navigator = GoRouter.of(context);
     final authService = ref.read(authServiceProvider);
-    final credential = await authService.signInAnonymously();
-    if (credential.user != null) {
-      final user = credential.user!;
-      await FirestoreService().saveUserProfile(
-        user.uid, user.displayName ?? 'Guest', user.email ?? '', user.photoURL);
-      navigator.go('/home');
+    try {
+      final credential = await authService.signInAnonymously();
+      if (credential.user != null) {
+        final user = credential.user!;
+        await FirestoreService().saveUserProfile(
+          user.uid, user.displayName ?? 'Guest', user.email ?? '', user.photoURL);
+        navigator.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인에 실패했습니다. 다시 시도해주세요.')),
+        );
+      }
     }
   }
 
