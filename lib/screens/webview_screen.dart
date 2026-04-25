@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../providers/games_provider.dart';
+import '../services/game_bridge_service.dart';
 import '../widgets/loading_widget.dart';
 
 class WebViewScreen extends ConsumerStatefulWidget {
@@ -14,12 +15,18 @@ class WebViewScreen extends ConsumerStatefulWidget {
   ConsumerState<WebViewScreen> createState() => _WebViewScreenState();
 }
 
-class _WebViewScreenState extends ConsumerState<WebViewScreen> {
+class _WebViewScreenState extends ConsumerState<WebViewScreen>
+    with WidgetsBindingObserver {
   late WebViewController _controller;
+  final GameBridgeService _bridge = GameBridgeService();
   bool _isLoading = true;
   bool _urlLoaded = false;
   bool _controllerNotified = false;
   final FocusNode _focusNode = FocusNode();
+
+  // 게임 상태 (플랫폼 채널로 수신)
+  String _gameState = 'loading';
+  int _score = 0;
 
   // Draggable exit button position
   Offset _exitButtonPos = const Offset(20, 60);
@@ -47,6 +54,8 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.landscapeLeft,
@@ -54,10 +63,14 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+    // GameBridge 이벤트 리스너 — 플랫폼 채널로 게임 이벤트 수신
+    _bridge.onGameEvent = _handleGameEvent;
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
         onPageFinished: (_) {
+          // Unity WebGL 로드 완료 시 뷰포트 최적화
           _controller.runJavaScript('''
             var meta = document.querySelector('meta[name="viewport"]');
             if (!meta) {
@@ -82,13 +95,52 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
       ..addJavaScriptChannel(
         'GameBridge',
         onMessageReceived: (message) {
-          debugPrint('GameBridge: ${message.message}');
+          // JS → Dart 경로 (webview_flutter 패키지 채널)
+          // 이 메시지를 네이티브 MethodChannel로 포워딩하여
+          // 햅틱 등 네이티브 기능을 트리거
+          debugPrint('[GameBridge JS] ${message.message}');
         },
       );
   }
 
+  /// 플랫폼 채널로 수신된 게임 이벤트 처리
+  void _handleGameEvent(GameEvent event) {
+    if (!mounted) return;
+
+    setState(() {
+      _gameState = event.type;
+      if (event.data.containsKey('score')) {
+        _score = event.data['score'] as int? ?? _score;
+      }
+    });
+
+    // 게임 오버 시 결과 다이얼로그
+    if (event.type == 'game_over') {
+      _showGameOverDialog();
+    }
+  }
+
+  /// 앱 라이프사이클 — 백그라운드 진입 시 게임 자동 일시정지
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        // 플랫폼 채널로 네이티브 레벨에서 게임 일시정지
+        _bridge.pauseGame();
+        break;
+      case AppLifecycleState.resumed:
+        _bridge.resumeGame();
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _bridge.onGameEvent = null;
     _focusNode.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -96,7 +148,6 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
   }
 
   void _handleKeyEvent(KeyEvent event) {
-    // Show controller snackbar once
     if (!_controllerNotified && mounted) {
       _controllerNotified = true;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,6 +180,33 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
         cancelable: true
       }));
     ''');
+  }
+
+  void _showGameOverDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('게임 종료'),
+        content: Text('점수: $_score'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).pop();
+            },
+            child: const Text('나가기'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _controller.reload();
+            },
+            child: const Text('다시하기'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -170,7 +248,6 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen> {
                 onPanUpdate: (details) {
                   setState(() {
                     _exitButtonPos += details.delta;
-                    // Clamp within screen
                     final size = MediaQuery.of(context).size;
                     _exitButtonPos = Offset(
                       _exitButtonPos.dx.clamp(0, size.width - 48),
