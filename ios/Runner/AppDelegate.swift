@@ -17,6 +17,7 @@ import AudioToolbox
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
+        CentPlayVideoPlugin.register(with: self.registrar(forPlugin: "CentPlayVideoPlugin")!)
 
         guard let controller = window?.rootViewController as? FlutterViewController else {
             return super.application(application, didFinishLaunchingWithOptions: launchOptions)

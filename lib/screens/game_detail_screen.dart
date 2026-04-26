@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart' as sp;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:video_player/video_player.dart';
 import '../providers/games_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../widgets/game_card.dart';
+import '../widgets/native_video_player.dart';
 import '../widgets/section_header.dart';
 import '../widgets/loading_widget.dart';
 
@@ -137,13 +137,19 @@ class GameDetailScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            // Gameplay trailer
+            // Gameplay trailer (네이티브 플랫폼 채널 플레이어)
             if (game.trailerUrl.isNotEmpty) ...[
               const SectionHeader(
                   title: '게임플레이 영상', icon: Icons.videocam_rounded),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _TrailerPlayer(url: game.trailerUrl),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: NativeVideoPlayer(
+                    url: game.trailerUrl,
+                    autoPlay: false,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -169,89 +175,6 @@ class GameDetailScreen extends ConsumerWidget {
             ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _TrailerPlayer extends StatefulWidget {
-  final String url;
-  const _TrailerPlayer({required this.url});
-
-  @override
-  State<_TrailerPlayer> createState() => _TrailerPlayerState();
-}
-
-class _TrailerPlayerState extends State<_TrailerPlayer> {
-  VideoPlayerController? _controller;
-  bool _playing = false;
-
-  void _initAndPlay() {
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
-      ..initialize().then((_) {
-        if (!mounted) return;
-        setState(() => _playing = true);
-        _controller!.play();
-      });
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: _playing && _controller != null && _controller!.value.isInitialized
-            ? Stack(
-                alignment: Alignment.center,
-                children: [
-                  VideoPlayer(_controller!),
-                  // Tap to pause/play
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _controller!.value.isPlaying
-                            ? _controller!.pause()
-                            : _controller!.play();
-                      });
-                    },
-                    child: Container(color: Colors.transparent),
-                  ),
-                  // Progress bar
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: VideoProgressIndicator(_controller!,
-                        allowScrubbing: true,
-                        colors: const VideoProgressColors(
-                          playedColor: Color(0xFFE200FF),
-                          bufferedColor: Colors.white24,
-                          backgroundColor: Colors.white12,
-                        )),
-                  ),
-                ],
-              )
-            : GestureDetector(
-                onTap: _initAndPlay,
-                child: Container(
-                  color: Colors.black,
-                  child: const Center(
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.white24,
-                      child: Icon(Icons.play_arrow_rounded,
-                          size: 40, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
       ),
     );
   }

@@ -14,6 +14,7 @@ import 'screens/chat_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/controller_settings_screen.dart';
 import 'screens/legal_screen.dart';
+import 'screens/video_feed_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -55,6 +56,11 @@ final router = GoRouter(
           path: '/home',
           pageBuilder: (context, state) =>
               _noAnimationPage(const HomeScreen()),
+        ),
+        GoRoute(
+          path: '/videos',
+          pageBuilder: (context, state) =>
+              _noAnimationPage(const VideoFeedScreen()),
         ),
         GoRoute(
           path: '/profile',

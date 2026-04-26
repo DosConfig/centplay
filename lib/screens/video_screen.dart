@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_player/video_player.dart';
+import '../widgets/native_video_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/videos_provider.dart';
 import '../models/video.dart';
@@ -48,24 +48,7 @@ class _VideoCard extends StatefulWidget {
 }
 
 class _VideoCardState extends State<_VideoCard> {
-  VideoPlayerController? _controller;
-  bool _isPlaying = false;
-
-  void _initPlayer() {
-    _controller =
-        VideoPlayerController.networkUrl(Uri.parse(widget.video.videoUrl))
-          ..initialize().then((_) {
-            if (!mounted) return;
-            _controller!.play();
-            setState(() => _isPlaying = true);
-          });
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
+  bool _showPlayer = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +59,13 @@ class _VideoCardState extends State<_VideoCard> {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: _isPlaying &&
-                    _controller != null &&
-                    _controller!.value.isInitialized
-                ? VideoPlayer(_controller!)
+            child: _showPlayer
+                ? NativeVideoPlayer(
+                    url: widget.video.videoUrl,
+                    autoPlay: true,
+                  )
                 : GestureDetector(
-                    onTap: _initPlayer,
+                    onTap: () => setState(() => _showPlayer = true),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
