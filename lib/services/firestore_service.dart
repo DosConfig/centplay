@@ -5,7 +5,10 @@ import '../models/friend.dart';
 import '../models/chat_message.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirestoreService({FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
+
+  final FirebaseFirestore _db;
 
   // Games
   Stream<List<Game>> getGames() {
@@ -148,6 +151,23 @@ class FirestoreService {
       'lastTimestamp': FieldValue.serverTimestamp(),
       'participants': [myUid, friendUid],
     }, SetOptions(merge: true));
+  }
+
+  // Game seed
+  Future<void> seedMDC() async {
+    final doc = await _db.collection('games').doc('mdc').get();
+    if (doc.exists) return; // 이미 있으면 스킵
+    await _db.collection('games').doc('mdc').set({
+      'title': 'Monster Dispatch Corps',
+      'description': 'Unity WebGL 기반 몬스터 파견 전략 게임',
+      'thumbnailUrl': '',
+      'webglUrl': 'https://centplay-demo.web.app/mdc/index.html',
+      'trailerUrl': '',
+      'rank': 1,
+      'rating': 0.0,
+      'isRecommended': true,
+      'category': 'strategy',
+    });
   }
 
   // Unread count — single filter to avoid composite index requirement
