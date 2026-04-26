@@ -1,0 +1,29 @@
+# CentPlay — 리뷰어 자동 지정
+#
+# 파일 경로별 소유자를 지정해서 PR 생성 시 해당 파일 변경이 있으면
+# 자동으로 리뷰어가 태그되게 한다.
+#
+# Branch protection 에서 "Require review from Code Owners" 활성 시
+# 이 파일이 승인 없이 머지 불가를 강제한다.
+#
+# 공고대응_학습/testing-qa/03_static_analysis_and_gates.md §4 참고.
+
+# 전역 기본 소유자
+*                                         @DosConfig
+
+# 디자인 시스템 — 건드리면 팀 전체 영향
+/lib/design_system/                       @DosConfig
+/test/design_system/                      @DosConfig
+
+# 결제 · IAP · 인증 — 사고 시 가장 아픈 영역
+/lib/services/payment_*.dart              @DosConfig
+/lib/services/iap_*.dart                  @DosConfig
+/lib/services/auth_*.dart                 @DosConfig
+
+# CI/CD 워크플로우 — 실수 시 배포 파이프라인 손상
+/.github/workflows/                       @DosConfig
+
+# Firebase 보안 규칙 — 읽기/쓰기 권한 잘못 열면 데이터 유출
+/firestore.rules                          @DosConfig
+/firebase.json                            @DosConfig
+/firestore.indexes.json                   @DosConfig

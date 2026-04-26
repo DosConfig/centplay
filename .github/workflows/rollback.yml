@@ -1,0 +1,104 @@
+# Emergency Rollback Workflow
+#
+# 공고대응_학습/testing-qa/05_live_ops_and_rollback.md §6 참고.
+#
+# 의도:
+# - 프로덕션에서 Crashlytics · 모니터링 이상 감지 시
+# - **앱 재배포 없이** Remote Config flag 만 off 로 바꿔 2분 내 기능 차단
+# - GitHub Actions UI 에서 "Run workflow" 버튼 하나로 실행
+# - Actions permission 제한으로 지정된 사람만 실행 가능하게 하는 것이 기본
+#
+# 필요 secrets:
+#   GCP_SERVICE_ACCOUNT — Firebase Remote Config 수정 권한 보유한 서비스계정 JSON
+#   FIREBASE_PROJECT_ID — 프로젝트 ID
+#   SLACK_WEBHOOK       — 롤백 공지용 (선택)
+#
+# ⚠️ 이 파일은 **포트폴리오 시연용 스캐폴드** — 실제 프로덕션 도입 시엔
+# - Actions → Settings → "Require approval for workflow_dispatch" 활성
+# - CODEOWNERS 로 이 파일 수정 제한
+# - dry-run 옵션 추가
+# 를 권장.
+
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      feature_flag:
+        description: '비활성화할 Remote Config 키'
+        type: choice
+        options:
+          - feature_new_checkout
+          - feature_video_prefetch
+          - feature_game_hyper2
+          - feature_unity_webgl_v2
+        required: true
+      reason:
+        description: '롤백 사유 (Slack 공지 내용)'
+        required: true
+      dry_run:
+        description: 'dry-run (실제 publish 안 함)'
+        type: boolean
+        default: false
+
+jobs:
+  kill_switch:
+    name: Disable Remote Config flag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Fetch access token
+        id: token
+        run: |
+          echo "value=$(gcloud auth print-access-token)" >> $GITHUB_OUTPUT
+
+      - name: Fetch current Remote Config + ETag
+        id: fetch
+        run: |
+          RESPONSE_HEADERS=$(mktemp)
+          curl -s -D "$RESPONSE_HEADERS" \
+            "https://firebaseremoteconfig.googleapis.com/v1/projects/${{ secrets.FIREBASE_PROJECT_ID }}/remoteConfig" \
+            -H "Authorization: Bearer ${{ steps.token.outputs.value }}" \
+            -H "Accept-Encoding: gzip" \
+            -o current.json
+
+          ETAG=$(grep -i '^etag:' "$RESPONSE_HEADERS" | awk '{print $2}' | tr -d '\r')
+          echo "etag=$ETAG" >> $GITHUB_OUTPUT
+          echo "Current ETag: $ETAG"
+
+      - name: Patch flag to false
+        run: |
+          jq --arg k "${{ inputs.feature_flag }}" \
+             '.parameters[$k].defaultValue.value = "false"' \
+             current.json > new.json
+          diff <(jq -S . current.json) <(jq -S . new.json) || true
+
+      - name: Publish (skipped when dry_run)
+        if: ${{ !inputs.dry_run }}
+        run: |
+          curl -f -X PUT \
+            "https://firebaseremoteconfig.googleapis.com/v1/projects/${{ secrets.FIREBASE_PROJECT_ID }}/remoteConfig" \
+            -H "Authorization: Bearer ${{ steps.token.outputs.value }}" \
+            -H "Content-Type: application/json; UTF-8" \
+            -H "If-Match: ${{ steps.fetch.outputs.etag }}" \
+            --data @new.json
+
+      - name: Slack notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "${{ inputs.dry_run && '🧪 Rollback dry-run' || '🚨 Rollback executed' }}\nFlag: `${{ inputs.feature_flag }}` → `false`\nReason: ${{ inputs.reason }}\nBy: ${{ github.actor }}\nStatus: ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
