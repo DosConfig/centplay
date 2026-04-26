@@ -8,7 +8,8 @@ class MainShell extends StatelessWidget {
 
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/profile')) return 1;
+    if (location.startsWith('/videos')) return 1;
+    if (location.startsWith('/profile')) return 2;
     return 0;
   }
 
@@ -23,6 +24,8 @@ class MainShell extends StatelessWidget {
             case 0:
               context.go('/home');
             case 1:
+              context.go('/videos');
+            case 2:
               context.go('/profile');
           }
         },
@@ -31,6 +34,10 @@ class MainShell extends StatelessWidget {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: '홈'),
+          NavigationDestination(
+              icon: Icon(Icons.play_circle_outline),
+              selectedIcon: Icon(Icons.play_circle),
+              label: '영상'),
           NavigationDestination(
               icon: Icon(Icons.person_outline),
               selectedIcon: Icon(Icons.person),
