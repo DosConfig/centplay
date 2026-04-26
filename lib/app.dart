@@ -25,7 +25,7 @@ class _CentPlayAppState extends ConsumerState<CentPlayApp> {
       if (notification == null) return;
 
       final ctx = router.routerDelegate.navigatorKey.currentContext;
-      if (ctx == null) return;
+      if (ctx == null || !ctx.mounted) return;
 
       final route = message.data['route'];
 

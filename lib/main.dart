@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'services/push_service.dart';
+import 'services/firestore_service.dart';
 import 'app.dart';
 
 // Background message handler (must be top-level function)
@@ -23,6 +26,9 @@ Future<void> main() async {
   // Init push service if user is logged in
   final user = FirebaseAuth.instance.currentUser;
   await PushService().init(user?.uid);
+
+  // Seed MDC game (한 번만 실행, 이미 있으면 스킵)
+  unawaited(FirestoreService().seedMDC());
 
   runApp(const ProviderScope(child: CentPlayApp()));
 }

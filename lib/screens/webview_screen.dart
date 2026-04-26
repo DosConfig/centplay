@@ -25,7 +25,6 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen>
   final FocusNode _focusNode = FocusNode();
 
   // 게임 상태 (플랫폼 채널로 수신)
-  String _gameState = 'loading';
   int _score = 0;
 
   // Draggable exit button position
@@ -108,7 +107,7 @@ class _WebViewScreenState extends ConsumerState<WebViewScreen>
     if (!mounted) return;
 
     setState(() {
-      _gameState = event.type;
+      // event.type logged via debugPrint below
       if (event.data.containsKey('score')) {
         _score = event.data['score'] as int? ?? _score;
       }

@@ -70,6 +70,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         navigator.go('/home');
       }
     } catch (e) {
+      debugPrint('[Auth] 게스트 로그인 실패: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('로그인에 실패했습니다. 다시 시도해주세요.')),
